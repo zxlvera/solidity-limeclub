@@ -123,14 +123,6 @@ export default function Home() {
       }
       return (
         <div>
-          <Head>
-            <link
-              rel="preload"
-              href="/MontserratAlternates-Regular.ttf"
-              as="font"
-              crossorigin=""
-            />
-          </Head>
           <div>
             <form onSubmit={squeeze} className={styles.form}>
               <input
@@ -173,20 +165,32 @@ export default function Home() {
   }, [connectWallet, walletConnected]);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.main}>
-        <div className={styles.grid}>
-          <div>
-            <div className={styles.title}>🌴🍋 Welcome to Lime Club! 🍋🌴</div>
-            <div className={styles.description}>
-              <p>Heya these messages are stored on the blockchain!</p>
-              <p>Build with Solidity Smart Contract</p>
+    <>
+      <Head>
+        <link
+          rel="preload"
+          href="/MontserratAlternates-Regular.ttf"
+          as="font"
+          crossOrigin=""
+        />
+      </Head>
+      <div className={styles.container}>
+        <div className={styles.main}>
+          <div className={styles.grid}>
+            <div>
+              <div className={styles.title}>
+                🌴🍋 Welcome to Lime Club! 🍋🌴
+              </div>
+              <div className={styles.description}>
+                <p>Heya these messages are stored on the blockchain!</p>
+                <p>Build with Solidity Smart Contract</p>
+              </div>
             </div>
+            {renderButton()}
           </div>
-          {renderButton()}
         </div>
+        <footer className={styles.footer}>Made by moonplant#5230</footer>
       </div>
-      <footer className={styles.footer}>Made by moonplant#5230</footer>
-    </div>
+    </>
   );
 }
