@@ -124,15 +124,11 @@ export default function Home() {
       return (
         <div>
           <Head>
-            <link rel="preconnect" href="https://fonts.googleapis.com" />
             <link
-              rel="preconnect"
-              href="https://fonts.gstatic.com"
-              crossorigin
-            />
-            <link
-              href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates&display=swap"
-              rel="stylesheet"
+              rel="preload"
+              href="/MontserratAlternates-Regular.ttf"
+              as="font"
+              crossorigin=""
             />
           </Head>
           <div>
@@ -174,7 +170,7 @@ export default function Home() {
     if (!walletConnected) {
       connectWallet();
     }
-  }, [walletConnected]);
+  }, [connectWallet, walletConnected]);
 
   return (
     <div className={styles.container}>
