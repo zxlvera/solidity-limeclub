@@ -7,8 +7,9 @@ import "hardhat/console.sol";
 // 1. Send a squeeze()
 // 2. View getTotalSqueezes() - uint256
 
-contract Squeeze {
+contract SqueezePortal {
     uint256 totalSqueezes;
+    uint256 private seed;
     
     event NewSqueeze(address indexed from, uint256 timestamp, string message);
     
@@ -19,13 +20,32 @@ contract Squeeze {
     }
     
     Squeeze[] squeezes;
+    mapping(address => uint256) public lastSqueezedAt;
     
-    constructor() {
+    constructor() payable {
+        seed = (block.timestamp + block.difficulty) % 100;
     }
 
     function squeeze(string memory _message) public {
+        require(
+            lastSqueezedAt[msg.sender] + 5 minutes < block.timestamp,
+            "Wait 5m"
+        );
+        lastSqueezedAt[msg.sender] = block.timestamp;
         totalSqueezes += 1;
         squeezes.push(Squeeze(msg.sender, _message, block.timestamp));
+        /* Generate new seed for next user that sends a wave */
+        seed = (block.timestamp + block.difficulty + seed) % 100;
+
+        if (seed <= 50) {
+            uint256 prizeAmount = 0.0001 ether;
+            require(
+                prizeAmount <= address(this).balance,
+                "Trying to withdraw more money than the contract has."
+            );
+            (bool success, ) = (msg.sender).call{value: prizeAmount}(""); 
+            require(success, "Failed to withdraw money from contract");
+        }
         emit NewSqueeze(msg.sender, block.timestamp, _message);
     }
 

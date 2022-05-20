@@ -7,7 +7,9 @@ async function main() {
   console.log("Deploying contract with account:", deployer.address);
   console.log("Account balance:", accountBalance.toString());
 
-  const squeezeContractFactory = await hre.ethers.getContractFactory("Squeeze");
+  const squeezeContractFactory = await hre.ethers.getContractFactory(
+    "SqueezePortal"
+  );
   const squeezeContract = await squeezeContractFactory.deploy();
   await squeezeContract.deployed();
 

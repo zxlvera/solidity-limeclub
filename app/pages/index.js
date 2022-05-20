@@ -4,16 +4,16 @@ import styles from "../styles/Home.module.css";
 import { BigNumber, providers, Contract } from "ethers";
 import Web3Modal from "web3modal";
 import { useState, useEffect } from "react";
-import SqueezeContract from "../utils/Squeeze.json";
+import SqueezeContract from "../utils/SqueezePortal.json";
 import { SQUEEZE_CONTRACT_ADDRESS } from "../constants";
 
 export default function Home() {
-  const [init, setInit] = useState(false);
   const [walletConnected, setWalletConnected] = useState(false);
   const [loading, setLoading] = useState(false);
   const [squeezeCount, setSqueezeCount] = useState(0);
   const [allSqueezes, setAllSqueezes] = useState([]);
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const contractABI = SqueezeContract.abi;
 
   // Web3Modal to get Provider or Signer
@@ -62,12 +62,15 @@ export default function Home() {
         contractABI,
         signer
       );
-      const tx = await squeezeContract.squeeze(message);
+      const tx = await squeezeContract.squeeze(message, { gasLimit: 300000 });
       setLoading(true);
       await tx.wait();
       setLoading(false);
+      getTotalSqueezes();
       getAllSqueezes();
     } catch (error) {
+      setLoading(false);
+      setError(error);
       console.log(error);
     }
   };
@@ -107,20 +110,54 @@ export default function Home() {
         signer
       );
       const currentSqueezeCount = await squeezeContract.getTotalSqueezes();
-      console.log(currentSqueezeCount);
       setSqueezeCount(currentSqueezeCount.toString());
     } catch (error) {
       console.log(error);
     }
   };
 
+  useEffect(() => {
+    let squeezeContract;
+
+    const onNewSqueeze = (from, timestamp, message) => {
+      setAllSqueezes((prevState) => [
+        ...prevState,
+        {
+          address: from,
+          timestamp: new Date(timestamp * 1000),
+          message: message,
+        },
+      ]);
+    };
+
+    if (!walletConnected) {
+      connectWallet();
+    } else {
+      getTotalSqueezes();
+      getAllSqueezes();
+      const provider = new providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      try {
+        const squeezeContract = new Contract(
+          SQUEEZE_CONTRACT_ADDRESS,
+          contractABI,
+          signer
+        );
+        squeezeContract.on("NewSqueeze", onNewSqueeze);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    return () => {
+      if (squeezeContract) {
+        squeezeContract.off("NewSqueeze", onNewSqueeze);
+      }
+    };
+  }, [walletConnected]);
+
   const renderButton = () => {
     if (walletConnected) {
-      if (!init) {
-        getTotalSqueezes();
-        getAllSqueezes();
-        setInit(true);
-      }
       return (
         <div>
           <div>
@@ -134,9 +171,10 @@ export default function Home() {
               <button type="submit">🚀🚀🚀 Squeeze! 🍋🍋🍋 </button>
             </form>
             {loading && <span>loading...</span>}
+            {error && <span>Wait for 15mins to send again!</span>}
           </div>
           <div>
-            <h2>{squeezeCount} squeezed limes</h2>
+            <h2>{squeezeCount} limes squeezed</h2>
           </div>
           <div>
             {allSqueezes.map((squeeze, index) => {
@@ -157,12 +195,6 @@ export default function Home() {
       return <button onClick={connectWallet}>Connect your wallet</button>;
     }
   };
-
-  useEffect(() => {
-    if (!walletConnected) {
-      connectWallet();
-    }
-  }, [connectWallet, walletConnected]);
 
   return (
     <>
