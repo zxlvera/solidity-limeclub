@@ -10,7 +10,9 @@ async function main() {
   const squeezeContractFactory = await hre.ethers.getContractFactory(
     "SqueezePortal"
   );
-  const squeezeContract = await squeezeContractFactory.deploy();
+  const squeezeContract = await squeezeContractFactory.deploy({
+    value: hre.ethers.utils.parseEther("0.001"),
+  });
   await squeezeContract.deployed();
 
   console.log("Squeeze deployed to:", squeezeContract.address);
