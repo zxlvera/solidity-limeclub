@@ -1,5 +1,5 @@
 # Introduction
-This project was made based on [Mint NFT Collection tutorial on Buildspace](https://buildspace.so/p/build-solidity-web3-app)
+This project was made based on [Wave Portal tutorial on Buildspace](https://buildspace.so/p/build-solidity-web3-app)
 
 [Live website](https://solidity-limeclub.vercel.app/)
 
